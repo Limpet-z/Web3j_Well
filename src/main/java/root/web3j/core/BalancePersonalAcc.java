@@ -1,35 +1,25 @@
 package root.web3j.core;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.DefaultBlockParameter;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthBlockNumber;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.http.HttpService;
-
-
-import java.math.BigInteger;
+import org.web3j.utils.Convert;
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-public class BalancePersonalAcc  {
+public class BalancePersonalAcc {
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException, TimeoutException {
+    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
+        Web3j web3 = Web3j.build(new HttpService("https://mainnet.infura.io/v3/22d6a5974f25485397c011159543ae95"));
+        EthBlockNumber result = web3.ethBlockNumber().sendAsync().get();
+        EthGetBalance balance = web3.ethGetBalance("0xb69749D19517b0255985C1a6eCDD05a6307dC30E",
+                DefaultBlockParameterName.LATEST).send();
 
-        Logger log = LoggerFactory.getLogger(BalancePersonalAcc.class);
 
-        Web3j client = Web3j.build(new HttpService("https://mainnet.infura.io/v3/cd601df89a60461f9d744777d13769a5"));
-        Web3j client2 = Web3j.build(new HttpService("https://api.myetherapi.com/eth"));
-        Web3j client3 = Web3j.build(new HttpService());
-
-        final String ethAddress = "0xb69749D19517b0255985C1a6eCDD05a6307dC30E";
-        final EthGetBalance balanceResponse = client
-                .ethGetBalance(ethAddress, DefaultBlockParameter.valueOf("latest")).sendAsync()
-                .get(10, TimeUnit.SECONDS);
-
-        final BigInteger unscaledBalance = balanceResponse.getBalance();
-
-        log.info("Some object: {}", unscaledBalance);
+        System.out.println(" The Block Number is: " + result.getBlockNumber().toString());
+        System.out.println(Convert.fromWei(balance.getBalance().toString(), Convert.Unit.ETHER));
+        System.exit(1);
     }
 }
